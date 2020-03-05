@@ -1,0 +1,1 @@
+<events><event><nameInUpperCase>SUGAR</nameInUpperCase><roundedAmount>21</roundedAmount></event></events>

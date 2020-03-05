@@ -1,0 +1,16 @@
+@App:name('MySimpleApp')
+
+@App:description('Receive events via HTTP transport and view the output on the console')
+
+@Source(type = 'http', receiver.url='http://localhost:8006/productionStream', basic.auth.enabled='false',
+    @map(type='json'))
+define stream SweetProductionStream (name string, amount double);
+
+@sink(type='file', @map(type='xml'), file.uri='C:/Users/nelson.dias/Desktop/WSO2/wso2SP/read-http-json-save-file/output/low_productions.txt')
+@sink(type='log')
+define stream TransformedProductionStream (nameInUpperCase string, roundedAmount long);
+
+-- Simple Siddhi query to transform the name to upper case.
+from SweetProductionStream
+select str:upper(name) as nameInUpperCase, math:round(amount) as roundedAmount
+insert into TransformedProductionStream;
