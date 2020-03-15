@@ -1,0 +1,18 @@
+@App:name("SweetTotalApp")
+@App:description("Monitor the sweet production of the factory")
+
+
+-- Streams definition
+-- Input streams
+define stream SweetProductionStream(name string, amount long);
+
+-- Output streams
+@sink(type='log', prefix='LOGGER - Sweet Totals:')
+define stream SweetTotalStream(name string, totalProduction long);
+
+-- generate output events from the input events received
+@info(name = "SweetTotalQuery")
+from SweetProductionStream
+select name, sum(amount) as totalProduction
+group by name
+insert into SweetTotalStream;

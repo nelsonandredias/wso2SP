@@ -1,0 +1,12 @@
+@App:name('SweetAverageApp')
+@App:description('Monitor the average production of the factory')
+
+define stream SweetProductionStream (name string, amount double);
+@sink(type = 'log', prefix = "LOGGER - Sweet Average:", 
+	@map(type = 'passThrough'))
+define stream SweetAverageStream (name string, averageProduction double);
+
+@info(name = 'query')
+from SweetProductionStream 
+select name, avg(amount) as averageProduction 
+insert into SweetAverageStream;

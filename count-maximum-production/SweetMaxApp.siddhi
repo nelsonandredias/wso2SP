@@ -1,0 +1,19 @@
+@App:name("SweetMaxApp")
+@App:description("Monitor the sweet maximum production of the factory")
+
+
+-- Streams definition
+-- Input streams
+define stream SweetProductionStream(name string, amount long);
+
+-- Output streams
+@sink(type='log', prefix='LOGGER - Sweet Maximum:')
+define stream SweetMaximumStream(name string, maxProduction long);
+
+-- generate output events from the input events received
+@info(name = "SweetMaxQuery")
+from SweetProductionStream
+select name, max(amount) as maxProduction
+group by name
+insert into SweetMaximumStream;
+
