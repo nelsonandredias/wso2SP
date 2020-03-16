@@ -1,0 +1,18 @@
+@App:name('ReceiveHTTPEventsApp')
+@App:description("Receive events from HTTP calls")
+
+-- Input streams
+@source(type='http', receiver.url='http://localhost:5005/SweetProductionEP', @map(type='json'))
+define stream SweetProductionStream (name string, amount long);
+
+-- Output streams
+@sink(type='log', prefix='LOGGER - Sweet Totals:')
+define stream SweetTotalStream(name string, totalProduction long);
+
+-- generate output events from the input events received
+@info(name='SweetTotalQuery')
+from SweetProductionStream
+select name, sum(amount) as totalProduction
+group by name
+insert into SweetTotalStream;
+
