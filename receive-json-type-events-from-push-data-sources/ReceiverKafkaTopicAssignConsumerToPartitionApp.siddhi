@@ -1,0 +1,35 @@
+@App:name("KafkaAssignConsumerToPartitionApp")
+
+@App:description('Consume events from a Kafka Topic and log the messages on the console.')
+
+-- consumer-1 will consume messages from partitions 0 and 1
+@source(type='kafka',
+        topic.list='productions',
+        threading.option='single.thread',
+        group.id="group1",
+        bootstrap.servers='localhost:9092',
+        partition.no.list='0,1',
+        @map(type='json'))
+define stream SweetProductionStream1 (name string, amount double);
+
+-- consumer-2 will consume messages from partition 2
+@source(type='kafka',
+        topic.list='productions',
+        threading.option='single.thread',
+        group.id="group1",
+        bootstrap.servers='localhost:9092',
+        partition.no.list='2',
+        @map(type='json'))
+define stream SweetProductionStream2 (name string, amount double);
+
+@sink(type='log')
+define stream OutputStream (name string, totalProduction double, id string);
+
+-- Query to sum the total amount.
+from SweetProductionStream1
+select str:upper(name) as name, sum(amount) as totalProduction, 'consumer-1' as id
+insert into OutputStream;
+
+from SweetProductionStream2
+select str:upper(name) as name, sum(amount) as totalProduction, 'consumer-2' as id
+insert into OutputStream;
