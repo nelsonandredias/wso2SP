@@ -1,0 +1,21 @@
+@App:name("CountProductions")
+@App:description('Siddhi application to count the total number of orders.')
+
+-- Input streams
+@source(type='kafka',
+    topic.list='sandwich_productions',
+    threading.option='single.thread',
+    group.id="group3",
+    bootstrap.servers='localhost:9092',
+    partition.no.list='0',
+    @map(type='json'))
+define stream SandwichProductionStream (name string, amount double);
+
+-- Output streams
+@sink(type='log')
+define stream OutputStream (totalProductions double);
+
+--queries to sum total amount
+from SandwichProductionStream
+select sum(amount) as totalProductions
+insert into OutputStream;
