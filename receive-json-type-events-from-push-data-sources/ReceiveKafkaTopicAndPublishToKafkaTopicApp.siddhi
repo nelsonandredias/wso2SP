@@ -1,0 +1,21 @@
+@App:name("ReceiveKafkaTopicAndPublishToKafkaTopicApp")
+@App:description('Consume events from a Kafka Topic, do basic filtering and publish filtered messages to a Kafka topic.')
+
+@source(type='kafka',
+    topic.list='productions',
+    threading.option='single.thread',
+    group.id="group2",
+    bootstrap.servers='localhost:9092',
+    @map(type='json'))
+define stream SweetProductionStream (name string, amount double);
+
+@sink(type='kafka',
+    topic='bulk-orders',
+    bootstrap.servers='localhost:9092',
+    partition.no='0',
+    @map(type='json'))
+define stream BulkOrdersStream (name string, amount double);
+
+from SweetProductionStream[amount > 50]
+select *
+insert into BulkOrdersStream;
